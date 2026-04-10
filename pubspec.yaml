@@ -1,0 +1,62 @@
+name: sijual_app
+description: SiJual 2.0 - Aplikasi Marketplace Multi-Lapas (The Mall Concept)
+publish_to: 'none'
+version: 2.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # --- State Management ---
+  flutter_riverpod: ^2.4.9
+  riverpod_annotation: ^2.3.3
+
+  # --- Network & Data ---
+  dio: ^5.4.0 # HTTP Client dengan Interceptors kuat
+  connectivity_plus: ^5.0.2 # Cek koneksi internet (Offline Handling)
+
+  # --- Navigation ---
+  go_router: ^13.1.0 # Type-safe routing
+
+  # --- Local Storage ---
+  shared_preferences: ^2.2.2 # Cache Data JSON
+  flutter_secure_storage: ^9.0.0 # Token Auth storage
+
+  # --- UI Components & Assets ---
+  google_fonts: ^6.1.0 # Font Poppins
+  flutter_svg: ^2.0.9 # Vector Icons
+  cached_network_image: ^3.3.1 # Image Caching
+  url_launcher: ^6.2.0 # Open URL, Telpon, Email
+  badges: ^3.1.2 # Badge Notifikasi
+  shimmer: ^3.0.0 # Loading Effects
+  cupertino_icons: ^1.0.2
+
+  # --- Utilities ---
+  logger: ^2.0.2 # Debugging yang rapi
+  intl: ^0.19.0 # Format Rupiah & Tanggal
+
+  # --- Data Modeling (Recommended) ---
+  json_annotation: ^4.9.0
+  equatable: ^2.0.5 # Membantu komparasi object
+  carousel_slider: ^5.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+  # --- Code Generation (Wajib untuk Riverpod & JSON) ---
+  build_runner: ^2.4.8
+  riverpod_generator: ^2.3.9
+  json_serializable: ^6.7.1
+
+flutter:
+  uses-material-design: true
+
+  # Asset Registration
+  assets:
+    - assets/images/
+    - assets/icons/
