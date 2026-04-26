@@ -26,7 +26,7 @@ dependencies:
   flutter_secure_storage: ^9.0.0 # Token Auth storage
 
   # --- UI Components & Assets ---
-  google_fonts: ^6.1.0 # Font Poppins
+  google_fonts: ^8.0.0 # Font Poppins
   flutter_svg: ^2.0.9 # Vector Icons
   cached_network_image: ^3.3.1 # Image Caching
   url_launcher: ^6.2.0 # Open URL, Telpon, Email
