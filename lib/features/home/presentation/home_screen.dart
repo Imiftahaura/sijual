@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'home_controller.dart';
-import '../../product/presentation/product_grid_view.dart';
+import 'home_controller.dart' hide ProductList, productListProvider;
 import '../../product/presentation/product_controller.dart';
+import '../../product/presentation/widgets/product_card.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -17,13 +17,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   static const Color brandYellow = Color(0xFFFFD700);
   static const Color bgGrey = Color(0xFFF1F3F6);
 
+  // Filter untuk ProductList di home (tanpa query = tampilkan semua)
+  static const _homeFilter = ProductFilter();
+
+  // ScrollController untuk CustomScrollView agar bisa detect infinite scroll
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  /// Deteksi saat user scroll mendekati bawah (80% threshold).
+  /// Ini equivalent dengan IntersectionObserver / scroll event di JavaScript
+  /// yang trigger load batch berikutnya saat mendekati viewport.
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent * 0.8) {
+      ref.read(productListProvider(_homeFilter).notifier).loadMore();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final homeDataAsync = ref.watch(homeDataProvider);
+    // Watch product list provider langsung untuk infinite scroll
+    final productListAsync = ref.watch(productListProvider(_homeFilter));
 
     return Scaffold(
       backgroundColor: bgGrey, 
       body: CustomScrollView(
+        controller: _scrollController,
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
@@ -83,21 +114,64 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
 
-          homeDataAsync.when(
-            data: (data) => SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  _buildSectionHeader("Rekomendasi Untukmu"),
-                  const SizedBox(height: 12),
-                  ProductGridView(
-                    products: data.products,
-                    filter: const ProductFilter(),
-                    isScrollable: false,
-                  ),
-                ]),
-              ),
+          // Section header "Rekomendasi Untukmu"
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: _buildSectionHeader("Rekomendasi Untukmu"),
             ),
+          ),
+
+          // Product grid dengan infinite scroll via SliverGrid
+          productListAsync.when(
+            data: (products) {
+              if (products.isEmpty) {
+                return const SliverToBoxAdapter(
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 50),
+                      child: Text("Belum ada produk.", style: TextStyle(color: Colors.grey)),
+                    ),
+                  ),
+                );
+              }
+
+              final notifier = ref.read(productListProvider(_homeFilter).notifier);
+              final hasMore = notifier.hasMore;
+
+              return SliverPadding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 100),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.7,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      if (index < products.length) {
+                        return ProductCard(
+                          product: products[index],
+                          onTap: () => context.push('/product/${products[index].id}'),
+                        );
+                      }
+                      // Loading indicator di slot terakhir
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: brandBlue,
+                          ),
+                        ),
+                      );
+                    },
+                    childCount: products.length + (hasMore ? 2 : 0),
+                  ),
+                ),
+              );
+            },
             loading: () => const SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.only(top: 50),

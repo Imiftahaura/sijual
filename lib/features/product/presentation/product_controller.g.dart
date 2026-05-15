@@ -7,7 +7,7 @@ part of 'product_controller.dart';
 // **************************************************************************
 
 String _$recommendedProductsHash() =>
-    r'd79d588819a95b561bf3ac07ec17890555161b33';
+    r'f431fd16dde509db683bba22860ad88b93109d7b';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -192,7 +192,7 @@ final productHistoryProvider =
 );
 
 typedef _$ProductHistory = Notifier<List<Product>>;
-String _$productListHash() => r'f322982af7c21185c043da08d0d536e58a375f04';
+String _$productListHash() => r'30ea7e7da2f9b35abb37d0689fe3da0e62ddff47';
 
 abstract class _$ProductList
     extends BuildlessAutoDisposeAsyncNotifier<List<Product>> {
@@ -203,16 +203,44 @@ abstract class _$ProductList
   );
 }
 
-/// See also [ProductList].
+/// Controller utama untuk infinite scroll / lazy loading produk.
+///
+/// Konsep: Sama seperti di JavaScript yang pakai IntersectionObserver
+/// atau scroll listener untuk load batch berikutnya saat mendekati viewport.
+/// Di Flutter, ini disebut "infinite scroll" / "pagination" — menggunakan
+/// ScrollController yang memanggil loadMore() saat mendekati batas scroll.
+///
+/// Copied from [ProductList].
 @ProviderFor(ProductList)
 const productListProvider = ProductListFamily();
 
-/// See also [ProductList].
+/// Controller utama untuk infinite scroll / lazy loading produk.
+///
+/// Konsep: Sama seperti di JavaScript yang pakai IntersectionObserver
+/// atau scroll listener untuk load batch berikutnya saat mendekati viewport.
+/// Di Flutter, ini disebut "infinite scroll" / "pagination" — menggunakan
+/// ScrollController yang memanggil loadMore() saat mendekati batas scroll.
+///
+/// Copied from [ProductList].
 class ProductListFamily extends Family<AsyncValue<List<Product>>> {
-  /// See also [ProductList].
+  /// Controller utama untuk infinite scroll / lazy loading produk.
+  ///
+  /// Konsep: Sama seperti di JavaScript yang pakai IntersectionObserver
+  /// atau scroll listener untuk load batch berikutnya saat mendekati viewport.
+  /// Di Flutter, ini disebut "infinite scroll" / "pagination" — menggunakan
+  /// ScrollController yang memanggil loadMore() saat mendekati batas scroll.
+  ///
+  /// Copied from [ProductList].
   const ProductListFamily();
 
-  /// See also [ProductList].
+  /// Controller utama untuk infinite scroll / lazy loading produk.
+  ///
+  /// Konsep: Sama seperti di JavaScript yang pakai IntersectionObserver
+  /// atau scroll listener untuk load batch berikutnya saat mendekati viewport.
+  /// Di Flutter, ini disebut "infinite scroll" / "pagination" — menggunakan
+  /// ScrollController yang memanggil loadMore() saat mendekati batas scroll.
+  ///
+  /// Copied from [ProductList].
   ProductListProvider call(
     ProductFilter filter,
   ) {
@@ -245,10 +273,24 @@ class ProductListFamily extends Family<AsyncValue<List<Product>>> {
   String? get name => r'productListProvider';
 }
 
-/// See also [ProductList].
+/// Controller utama untuk infinite scroll / lazy loading produk.
+///
+/// Konsep: Sama seperti di JavaScript yang pakai IntersectionObserver
+/// atau scroll listener untuk load batch berikutnya saat mendekati viewport.
+/// Di Flutter, ini disebut "infinite scroll" / "pagination" — menggunakan
+/// ScrollController yang memanggil loadMore() saat mendekati batas scroll.
+///
+/// Copied from [ProductList].
 class ProductListProvider
     extends AutoDisposeAsyncNotifierProviderImpl<ProductList, List<Product>> {
-  /// See also [ProductList].
+  /// Controller utama untuk infinite scroll / lazy loading produk.
+  ///
+  /// Konsep: Sama seperti di JavaScript yang pakai IntersectionObserver
+  /// atau scroll listener untuk load batch berikutnya saat mendekati viewport.
+  /// Di Flutter, ini disebut "infinite scroll" / "pagination" — menggunakan
+  /// ScrollController yang memanggil loadMore() saat mendekati batas scroll.
+  ///
+  /// Copied from [ProductList].
   ProductListProvider(
     ProductFilter filter,
   ) : this._internal(

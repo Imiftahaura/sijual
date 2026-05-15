@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../data/product_model.dart';
+import '../data/product_model.dart'; // ignore: unused_import
 import 'product_controller.dart';
 import 'product_grid_view.dart';
 
@@ -25,8 +25,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Buat filter baru setiap kali query berubah
+    // Ini akan otomatis trigger ProductList.build() dengan query baru
     final searchFilter = ProductFilter(query: _currentQuery);
-  final searchResultsAsync = ref.watch(productListProvider(searchFilter));
+    final searchResultsAsync = _currentQuery.isNotEmpty
+        ? ref.watch(productListProvider(searchFilter))
+        : null;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF1F3F6),
@@ -71,13 +75,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
       body: _currentQuery.isEmpty
         ? _buildInitialState() // Tampilkan Tren/Populer jika kosong
-        : searchResultsAsync.when(
+        : searchResultsAsync!.when(
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (err, stack) => Center(child: Text("Error: $err")),
             data: (products) {
               if (products.isEmpty) return _buildEmptyState();
               
-              // Tampilkan hasil pencarian murni
+              // Tampilkan hasil pencarian dengan infinite scroll
               return ProductGridView(
                 products: products,
                 filter: searchFilter,

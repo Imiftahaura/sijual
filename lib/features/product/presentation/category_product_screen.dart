@@ -16,9 +16,9 @@ class CategoryProductScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // PANGGIL PROVIDER DENGAN FILTER SPESIFIK
-    // Ini otomatis memanggil getProducts(categoryId: categoryId) di Repository
-    final filter = ProductFilter(categoryId: categoryId);
+    // Gunakan search query dengan nama kategori untuk filter produk
+    // API: GET /products/search?q=categoryName&page=1
+    final filter = ProductFilter(query: categoryName);
     final productState = ref.watch(productListProvider(filter));
 
     return Scaffold(
@@ -46,7 +46,7 @@ class CategoryProductScreen extends ConsumerWidget {
               ),
             );
           }
-          // PERBAIKAN: Menambahkan parameter filter agar sinkron dengan ProductGridView terbaru
+          // PERBAIKAN: ProductGridView dengan infinite scroll
           return ProductGridView(
             products: products, 
             filter: filter, 

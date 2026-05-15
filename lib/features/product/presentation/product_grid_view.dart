@@ -5,6 +5,14 @@ import '../data/product_model.dart';
 import 'product_controller.dart';
 import 'widgets/product_card.dart';
 
+/// Widget Grid produk dengan infinite scroll.
+/// 
+/// Cara kerja (mirip JavaScript IntersectionObserver):
+/// - ScrollController mendeteksi posisi scroll
+/// - Saat user scroll mendekati 80% dari batas bawah (viewport threshold),
+///   otomatis memanggil loadMore() untuk fetch batch data selanjutnya
+/// - Loading indicator muncul di bawah saat sedang fetch
+/// - Berhenti otomatis saat tidak ada data lagi (hasMore = false)
 class ProductGridView extends ConsumerStatefulWidget {
   final List<Product> products;
   final bool isScrollable; 
@@ -27,18 +35,24 @@ class _ProductGridViewState extends ConsumerState<ProductGridView> {
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
+    if (widget.isScrollable) {
+      _scrollController.addListener(_onScroll);
+    }
   }
 
   void _onScroll() {
-    // LOGIKA INFINITE SCROLL: Memuat data saat mencapai 90% scroll
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.9) {
+    // LOGIKA INFINITE SCROLL: 
+    // Memuat batch berikutnya saat scroll mencapai 80% dari maxScrollExtent.
+    // Ini equivalent dengan "mendekati viewport" di JavaScript.
+    if (_scrollController.position.pixels >= 
+        _scrollController.position.maxScrollExtent * 0.8) {
       ref.read(productListProvider(widget.filter).notifier).loadMore();
     }
   }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
@@ -49,12 +63,19 @@ class _ProductGridViewState extends ConsumerState<ProductGridView> {
       return const Center(child: Text("Belum ada produk."));
     }
 
-    final productListState = ref.watch(productListProvider(widget.filter));
+    // Ambil notifier untuk cek hasMore
+    final notifier = ref.read(productListProvider(widget.filter).notifier);
+    final hasMore = notifier.hasMore;
+
+    // Hitung total item: produk + 1 slot loading indicator (jika masih ada data)
+    final itemCount = widget.products.length + (hasMore ? 1 : 0);
 
     return GridView.builder(
       controller: widget.isScrollable ? _scrollController : null,
       shrinkWrap: !widget.isScrollable,
-      physics: widget.isScrollable ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics(),
+      physics: widget.isScrollable 
+          ? const BouncingScrollPhysics() 
+          : const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -62,19 +83,24 @@ class _ProductGridViewState extends ConsumerState<ProductGridView> {
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
       ),
-      itemCount: widget.products.length + (productListState.isLoading ? 2 : 0),
+      itemCount: itemCount,
       itemBuilder: (context, index) {
+        // Item produk biasa
         if (index < widget.products.length) {
           return ProductCard(
             product: widget.products[index],
             onTap: () => context.push('/product/${widget.products[index].id}'),
           );
         }
-        // LOADING INDICATOR DI BAWAH
+        // LOADING INDICATOR DI BAWAH (slot terakhir)
+        // Ini akan terlihat saat user scroll ke bawah mendekati akhir list
         return const Center(
           child: Padding(
             padding: EdgeInsets.all(16.0),
-            child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF2C5098)),
+            child: CircularProgressIndicator(
+              strokeWidth: 2, 
+              color: Color(0xFF2C5098),
+            ),
           ),
         );
       },
